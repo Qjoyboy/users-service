@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"log"
 
 	userpb "github.com/Qjoyboy/project-proto/proto/user"
 	"github.com/Qjoyboy/users-service/internal/user"
@@ -62,18 +63,17 @@ func (s *Handler) ListUsers(ctx context.Context, _ *emptypb.Empty) (*userpb.List
 	return &userpb.ListUsersResponse{Users: pbUsers}, nil
 }
 
-func (s *Handler) UpdateUser(ctx context.Context, req *userpb.UpdateUserRequest) (*userpb.UpdateUserResponse, error) {
-	updatedUser := user.User{
-		Email: req.User.Email,
-	}
+func (s *Handler) UpdateUser(ctx context.Context, req *userpb.User) (*userpb.UpdateUserResponse, error) {
+	log.Printf("UpdateUser request id=%q email=%q", req.Id, req.Email)
 
-	usResult, err := s.Svc.UpdateUser(req.User.Id, updatedUser.Email, "")
+	usResult, err := s.Svc.UpdateUser(req.GetId(), req.GetEmail(), "")
 	if err != nil {
 		return nil, errors.Errorf("Failed to update user %v", err)
 	}
+	log.Printf("UpdateUser request id=%q email=%q", req.Id, req.Email)
 	return &userpb.UpdateUserResponse{
 		User: &userpb.User{
-			Id:    req.User.Id,
+			Id:    req.Id,
 			Email: usResult.Email,
 		},
 	}, nil
